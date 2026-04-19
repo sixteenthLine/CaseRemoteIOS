@@ -11,8 +11,7 @@ final class OpeningSessionViewModel {
 
     func createSession(
         deviceId: Int,
-        selectedCaseId: Int,
-        selectedCaseName: String?,
+        selectedInventoryItemId: Int,
         token: String
     ) async {
         isLoading = true
@@ -21,8 +20,7 @@ final class OpeningSessionViewModel {
         do {
             let created = try await ApiClient.shared.createOpeningSession(
                 deviceId: deviceId,
-                selectedCaseId: selectedCaseId,
-                selectedCaseName: selectedCaseName,
+                selectedInventoryItemId: selectedInventoryItemId,
                 token: token
             )
             session = created

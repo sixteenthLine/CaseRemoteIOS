@@ -108,35 +108,76 @@ final class ApiClient {
             responseType: Command.self
         )
     }
+    func syncInventory(token: String) async throws -> InventorySyncResponse {
+
+        struct EmptyBody: Encodable {}
+
+        return try await request(
+
+            path: "/inventory/sync",
+
+            method: "POST",
+
+            body: Optional<EmptyBody>.some(EmptyBody()),
+
+            token: token,
+
+            responseType: InventorySyncResponse.self
+
+        )
+
+    }
     
     func getCases(token: String) async throws -> InventoryCasesResponse {
+
         struct EmptyBody: Encodable {}
+
         return try await request(
+
             path: "/inventory/cases",
+
             method: "GET",
+
             body: Optional<EmptyBody>.none,
+
             token: token,
+
             responseType: InventoryCasesResponse.self
+
         )
+
     }
 
     func createOpeningSession(
+
         deviceId: Int,
-        selectedCaseId: Int,
-        selectedCaseName: String?,
+
+        selectedInventoryItemId: Int,
+
         token: String
+
     ) async throws -> OpeningSession {
+
         try await request(
+
             path: "/opening-sessions",
+
             method: "POST",
+
             body: CreateOpeningSessionRequest(
+
                 deviceId: deviceId,
-                selectedCaseId: selectedCaseId,
-                selectedCaseName: selectedCaseName
+
+                selectedInventoryItemId: selectedInventoryItemId
+
             ),
+
             token: token,
+
             responseType: OpeningSession.self
+
         )
+
     }
 
     func getOpeningSession(id: Int, token: String) async throws -> OpeningSession {

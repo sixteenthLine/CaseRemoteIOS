@@ -5,21 +5,33 @@ struct InventoryCasesResponse: Codable {
 }
 
 struct InventoryCase: Codable, Identifiable {
-    let id: Int
-    let externalItemId: String?
+    let inventoryItemId: Int
+    let externalAssetId: String
+    let classId: String?
+    let instanceId: String?
     let name: String
+    let marketHashName: String?
+    let iconURL: String?
     let quantity: Int
-    let imageURL: String?
-    let metadata: String?
-    let updatedAt: String
+    let tradable: Bool
+    let marketable: Bool
+    let metadataJSON: String?
+    let lastSyncedAt: String
+
+    var id: Int { inventoryItemId }
 
     enum CodingKeys: String, CodingKey {
-        case id
-        case externalItemId = "external_item_id"
+        case inventoryItemId = "inventory_item_id"
+        case externalAssetId = "external_asset_id"
+        case classId = "class_id"
+        case instanceId = "instance_id"
         case name
+        case marketHashName = "market_hash_name"
+        case iconURL = "icon_url"
         case quantity
-        case imageURL = "image_url"
-        case metadata
-        case updatedAt = "updated_at"
+        case tradable
+        case marketable
+        case metadataJSON = "metadata_json"
+        case lastSyncedAt = "last_synced_at"
     }
 }

@@ -5,14 +5,23 @@ struct OpeningSession: Codable, Identifiable {
     let userId: Int
     let deviceId: Int
     let status: String
-    let selectedCaseId: Int
+
+    let selectedInventoryItemId: Int
+    let selectedExternalAssetId: String?
     let selectedCaseName: String
+    let selectedMarketHashName: String?
+
+    let inventoryBeforePayload: String?
+    let inventoryAfterPayload: String?
+
     let errorMessage: String?
     let videoStatus: String
     let videoRef: String?
+
     let resultItemId: String?
     let resultFloat: Double?
     let resultPayload: String?
+
     let createdAt: String
     let startedAt: String?
     let finishedAt: String?
@@ -22,8 +31,12 @@ struct OpeningSession: Codable, Identifiable {
         case userId = "user_id"
         case deviceId = "device_id"
         case status
-        case selectedCaseId = "selected_case_id"
+        case selectedInventoryItemId = "selected_inventory_item_id"
+        case selectedExternalAssetId = "selected_external_asset_id"
         case selectedCaseName = "selected_case_name"
+        case selectedMarketHashName = "selected_market_hash_name"
+        case inventoryBeforePayload = "inventory_before_payload"
+        case inventoryAfterPayload = "inventory_after_payload"
         case errorMessage = "error_message"
         case videoStatus = "video_status"
         case videoRef = "video_ref"
@@ -38,13 +51,11 @@ struct OpeningSession: Codable, Identifiable {
 
 struct CreateOpeningSessionRequest: Codable {
     let deviceId: Int
-    let selectedCaseId: Int
-    let selectedCaseName: String?
+    let selectedInventoryItemId: Int
 
     enum CodingKeys: String, CodingKey {
         case deviceId = "device_id"
-        case selectedCaseId = "selected_case_id"
-        case selectedCaseName = "selected_case_name"
+        case selectedInventoryItemId = "selected_inventory_item_id"
     }
 }
 

@@ -49,8 +49,7 @@ struct OpeningSessionView: View {
                     guard let token = sessionStore.token else { return }
                     await viewModel.createSession(
                         deviceId: device.id,
-                        selectedCaseId: selectedCase.id,
-                        selectedCaseName: selectedCase.name,
+                        selectedInventoryItemId: selectedCase.inventoryItemId,
                         token: token
                     )
                 }

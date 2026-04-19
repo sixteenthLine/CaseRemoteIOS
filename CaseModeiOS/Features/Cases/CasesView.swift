@@ -25,8 +25,13 @@ struct CasesView: View {
                 VStack(spacing: 12) {
                     Text("No cases available")
                         .font(.headline)
-                    Text("There are no cases available for opening")
+                    Text("Refresh inventory to load your cases")
                         .foregroundStyle(.secondary)
+
+                    Button(viewModel.isSyncing ? "Syncing..." : "Refresh inventory") {
+                        Task { await syncAndReload() }
+                    }
+                    .disabled(viewModel.isSyncing)
                 }
                 .padding()
             } else {
@@ -37,14 +42,46 @@ struct CasesView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text(item.name)
                                 .font(.headline)
+
+                            if let marketHashName = item.marketHashName {
+                                Text(marketHashName)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+
                             Text("Quantity: \(item.quantity)")
-                                .foregroundStyle(.secondary)
+                                .font(.subheadline)
                         }
                     }
                 }
             }
         }
         .navigationTitle("Cases")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(viewModel.isSyncing ? "Syncing..." : "Refresh") {
+                    Task { await syncAndReload() }
+                }
+                .disabled(viewModel.isSyncing)
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: 4) {
+                if let syncMessage = viewModel.syncMessage {
+                    Text(syncMessage)
+                        .font(.footnote)
+                }
+
+                if let lastSyncedAt = viewModel.lastSyncedAt {
+                    Text("Last synced: \(lastSyncedAt)")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity)
+            .background(.thinMaterial)
+        }
         .task {
             await loadCases()
         }
@@ -53,5 +90,10 @@ struct CasesView: View {
     private func loadCases() async {
         guard let token = sessionStore.token else { return }
         await viewModel.loadCases(token: token)
+    }
+
+    private func syncAndReload() async {
+        guard let token = sessionStore.token else { return }
+        await viewModel.syncAndReload(token: token)
     }
 }
