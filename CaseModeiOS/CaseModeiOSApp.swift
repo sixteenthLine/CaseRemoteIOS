@@ -1,17 +1,13 @@
-//
-//  CaseModeiOSApp.swift
-//  CaseModeiOS
-//
-//  Created by Mykhailo Surovennyi on 18.04.26.
-//
-
 import SwiftUI
 
 @main
 struct CaseModeiOSApp: App {
+    @State private var sessionStore = SessionStore()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environment(sessionStore)
         }
     }
 }

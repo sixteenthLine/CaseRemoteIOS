@@ -1,8 +1,8 @@
 //
 //  ContentView.swift
-//  CaseModeiOS
+//  CaseRemoteiOS
 //
-//  Created by Mykhailo Surovennyi on 18.04.26.
+//  Created by Mykhailo Surovennyi on 17.04.26.
 //
 
 import SwiftUI
