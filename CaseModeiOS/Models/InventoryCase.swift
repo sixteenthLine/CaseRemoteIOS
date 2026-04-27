@@ -1,5 +1,17 @@
 import Foundation
 
+struct InventorySyncResponse: Codable {
+    let totalItems: Int
+    let totalCases: Int
+    let syncedAt: String
+
+    enum CodingKeys: String, CodingKey {
+        case totalItems = "total_items"
+        case totalCases = "total_cases"
+        case syncedAt = "synced_at"
+    }
+}
+
 struct InventoryCasesResponse: Codable {
     let cases: [InventoryCase]
 }

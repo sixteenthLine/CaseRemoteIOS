@@ -3,12 +3,17 @@ import Observation
 
 @Observable
 final class CasesViewModel {
-    var cases: [InventoryCase] = []
+    var groupedCases: [GroupedInventoryCase] = []
+    var terminals: [TerminalCatalogItem] = []
     var isLoading = false
     var isSyncing = false
     var errorMessage: String?
     var syncMessage: String?
     var lastSyncedAt: String?
+
+    init() {
+        terminals = TerminalCatalogService.shared.loadItems()
+    }
 
     func loadCases(token: String) async {
         isLoading = true
@@ -16,7 +21,7 @@ final class CasesViewModel {
 
         do {
             let response = try await ApiClient.shared.getCases(token: token)
-            cases = response.cases
+            groupedCases = groupCases(response.cases)
             lastSyncedAt = response.cases.first?.lastSyncedAt
         } catch {
             errorMessage = error.localizedDescription
@@ -39,5 +44,27 @@ final class CasesViewModel {
         }
 
         isSyncing = false
+    }
+
+    private func groupCases(_ cases: [InventoryCase]) -> [GroupedInventoryCase] {
+        let grouped = Dictionary(grouping: cases) { item in
+            item.marketHashName ?? item.name
+        }
+
+        return grouped
+            .map { key, items in
+                let representative = items[0]
+                let quantity = items.reduce(0) { $0 + $1.quantity }
+
+                return GroupedInventoryCase(
+                    id: key,
+                    representativeInventoryItemId: representative.inventoryItemId,
+                    displayName: representative.name,
+                    marketHashName: representative.marketHashName,
+                    quantity: quantity,
+                    lastSyncedAt: representative.lastSyncedAt
+                )
+            }
+            .sorted { $0.displayName < $1.displayName }
     }
 }
