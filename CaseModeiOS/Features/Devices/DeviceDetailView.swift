@@ -72,6 +72,14 @@ struct DeviceDetailView: View {
                 }
                 .buttonStyle(.borderedProminent)
 
+                NavigationLink {
+                    OpeningHistoryView()
+                } label: {
+                    Text("Opening History")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+
                 Divider()
 
                 Text("Command status")

@@ -3,17 +3,37 @@ import Foundation
 struct InventorySyncResponse: Codable {
     let totalItems: Int
     let totalCases: Int
+    let totalTerminals: Int?
     let syncedAt: String
 
     enum CodingKeys: String, CodingKey {
         case totalItems = "total_items"
         case totalCases = "total_cases"
+        case totalTerminals = "total_terminals"
         case syncedAt = "synced_at"
     }
 }
 
 struct InventoryCasesResponse: Codable {
     let cases: [InventoryCase]
+}
+
+struct InventoryTerminalsResponse: Codable {
+    let terminals: [InventoryCase]
+}
+
+struct OwnerInventorySyncCommandResponse: Codable {
+    let ok: Bool
+    let commandId: Int?
+    let status: String?
+    let error: String?
+
+    enum CodingKeys: String, CodingKey {
+        case ok
+        case commandId = "command_id"
+        case status
+        case error
+    }
 }
 
 struct InventoryCase: Codable, Identifiable {

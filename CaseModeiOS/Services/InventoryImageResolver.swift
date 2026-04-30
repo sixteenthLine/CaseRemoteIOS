@@ -34,12 +34,15 @@ final class InventoryImageResolver {
 
         let fileName = imageName(for: rawName)
 
-        
+        let categorySpecificFileName = "\(category.rawValue.dropLast())_\(fileName)"
+        if let url = imageIndex[categorySpecificFileName] {
+            return UIImage(contentsOfFile: url.path)
+        }
+
         if let url = imageIndex[fileName] {
             return UIImage(contentsOfFile: url.path)
         }
 
-    
         let categoryPrefix = "\(category.rawValue)/\(fileName)"
         if let url = imageIndex[categoryPrefix] {
             return UIImage(contentsOfFile: url.path)

@@ -24,7 +24,10 @@ struct CasesView: View {
         .navigationTitle("Inventory")
         .navigationBarTitleDisplayMode(.inline)
         .task {
-            await loadCases()
+            await loadInventory()
+        }
+        .onDisappear {
+            viewModel.stopSyncPolling()
         }
     }
 
@@ -43,18 +46,24 @@ struct CasesView: View {
 
                 Spacer()
 
-                Button(viewModel.isSyncing ? "Syncing..." : "Refresh") {
-                    Task { await syncAndReload() }
+                Button(viewModel.isStartingSync ? "Starting..." : "Sync Owner Inventory") {
+                    Task { await syncOwnerInventory() }
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(AppTheme.accent)
-                .disabled(viewModel.isSyncing)
+                .disabled(viewModel.isStartingSync)
             }
 
             if let syncMessage = viewModel.syncMessage {
                 Text(syncMessage)
                     .font(.footnote)
                     .foregroundStyle(AppTheme.accent)
+            }
+
+            if let syncCommandStatus = viewModel.syncCommandStatus {
+                Text("Command status: \(syncCommandStatus)")
+                    .font(.footnote)
+                    .foregroundStyle(AppTheme.textSecondary)
             }
 
             if let lastSyncedAt = viewModel.lastSyncedAt {
@@ -129,7 +138,8 @@ struct CasesView: View {
                             NavigationLink {
                                 GroupedOpeningSessionView(
                                     device: device,
-                                    groupedCase: item
+                                    groupedItem: item,
+                                    category: .cases
                                 )
                             } label: {
                                 InventoryCardView(
@@ -150,31 +160,35 @@ struct CasesView: View {
 
     private var terminalsContent: some View {
         Group {
-            if viewModel.terminals.isEmpty {
+            if viewModel.isLoading {
+                ProgressView("Loading terminals...")
+                    .tint(AppTheme.accent)
+                    .foregroundStyle(AppTheme.textPrimary)
+                    .frame(maxHeight: .infinity)
+            } else if viewModel.groupedTerminals.isEmpty {
                 emptyState(
-                    title: "No terminals catalog",
-                    subtitle: "Add terminal_catalog.json and images"
+                    title: "No terminals available",
+                    subtitle: "Refresh inventory to load your terminals"
                 )
             } else {
                 ScrollView {
                     LazyVStack(spacing: 12) {
-                        ForEach(viewModel.terminals) { item in
-                            VStack(spacing: 10) {
-                                InventoryCardView(
-                                    title: item.name,
-                                    subtitle: nil,
-                                    quantity: 1,
+                        ForEach(viewModel.groupedTerminals) { item in
+                            NavigationLink {
+                                GroupedOpeningSessionView(
+                                    device: device,
+                                    groupedItem: item,
                                     category: .terminals
                                 )
-
-                                HStack {
-                                    Spacer()
-
-                                    Text("Opening soon")
-                                        .font(.footnote.weight(.semibold))
-                                        .foregroundStyle(AppTheme.warning)
-                                }
+                            } label: {
+                                InventoryCardView(
+                                    title: item.displayName,
+                                    subtitle: item.marketHashName,
+                                    quantity: item.quantity,
+                                    category: .terminals
+                                )
                             }
+                            .buttonStyle(.plain)
                         }
                     }
                     .padding(.bottom, 24)
@@ -200,13 +214,13 @@ struct CasesView: View {
         }
     }
 
-    private func loadCases() async {
+    private func loadInventory() async {
         guard let token = sessionStore.token else { return }
-        await viewModel.loadCases(token: token)
+        await viewModel.loadInventory(token: token)
     }
 
-    private func syncAndReload() async {
+    private func syncOwnerInventory() async {
         guard let token = sessionStore.token else { return }
-        await viewModel.syncAndReload(token: token)
+        await viewModel.syncOwnerInventory(token: token)
     }
 }

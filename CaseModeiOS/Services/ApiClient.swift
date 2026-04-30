@@ -5,6 +5,16 @@ final class ApiClient {
 
     private init() {}
 
+    static func absoluteURL(from pathOrURL: String?) -> URL? {
+        guard let pathOrURL, !pathOrURL.isEmpty else { return nil }
+
+        if let url = URL(string: pathOrURL), url.scheme != nil {
+            return url
+        }
+
+        return URL(string: AppConfig.baseURL + pathOrURL)
+    }
+
     private func makeURL(path: String) throws -> URL {
         guard let url = URL(string: AppConfig.baseURL + path) else {
             throw URLError(.badURL)
@@ -127,6 +137,26 @@ final class ApiClient {
         )
 
     }
+
+    func syncOwnerInventory(token: String) async throws -> OwnerInventorySyncCommandResponse {
+
+        struct EmptyBody: Encodable {}
+
+        return try await request(
+
+            path: "/inventory/sync-owner",
+
+            method: "POST",
+
+            body: Optional<EmptyBody>.some(EmptyBody()),
+
+            token: token,
+
+            responseType: OwnerInventorySyncCommandResponse.self
+
+        )
+
+    }
     
     func getCases(token: String) async throws -> InventoryCasesResponse {
 
@@ -148,13 +178,35 @@ final class ApiClient {
 
     }
 
+    func getTerminals(token: String) async throws -> InventoryTerminalsResponse {
+
+        struct EmptyBody: Encodable {}
+
+        return try await request(
+
+            path: "/inventory/terminals",
+
+            method: "GET",
+
+            body: Optional<EmptyBody>.none,
+
+            token: token,
+
+            responseType: InventoryTerminalsResponse.self
+
+        )
+
+    }
+
     func createOpeningSession(
 
         deviceId: Int,
 
         selectedInventoryItemId: Int,
 
-        token: String
+        token: String,
+
+        openingStreamURL: String? = nil
 
     ) async throws -> OpeningSession {
 
@@ -168,7 +220,9 @@ final class ApiClient {
 
                 deviceId: deviceId,
 
-                selectedInventoryItemId: selectedInventoryItemId
+                selectedInventoryItemId: selectedInventoryItemId,
+
+                openingStreamURL: openingStreamURL
 
             ),
 
@@ -199,6 +253,17 @@ final class ApiClient {
             body: Optional<EmptyBody>.none,
             token: token,
             responseType: OpeningSessionsResponse.self
+        )
+    }
+
+    func getOpeningHistory(token: String) async throws -> OpeningHistoryResponse {
+        struct EmptyBody: Encodable {}
+        return try await request(
+            path: "/opening-history",
+            method: "GET",
+            body: Optional<EmptyBody>.none,
+            token: token,
+            responseType: OpeningHistoryResponse.self
         )
     }
 }
